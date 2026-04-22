@@ -170,7 +170,7 @@ Avaliação média	--------- KPI
 
 Vendas por categoria ---- Gráfico de barras
 
-Vendas por região	------- Gráfico de barras ou mapa geográfico
+Vendas por região	------- Gráfico de pizza
 
 Evolução das vendas	----- Gráfico de linha
 
