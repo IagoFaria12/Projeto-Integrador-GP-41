@@ -1,33 +1,51 @@
 import pandas as pd
+import logging as lg
 
-df = pd.read_csv("../data/raw/amazon_sales_dataset.csv")
+lg.basicConfig(
+    level=lg.DEBUG,
+    format="%(levelname)s - %(message)s - %(asctime)s",
+    filename="../logs/etl.log",
+    filemode="a"
+)
 
-# Limpar colunas desnecessárias para as métricas correspondentes ao briefing do projeto constados na documentação
-colums_drop = ["discount_percent", "payment_method", "rating", "review_count", "discounted_price", "total_revenue"]
-for colum_drop in colums_drop:
-    df = df.drop(colum_drop, axis=1)
+try:
+    df = pd.read_csv("../data/raw/amazon_sales_dataset.csv")
 
-# Limpar linhas vazias que tem ao menos um valor correspondente a NaN, None ou null
-null_rows = df.isna().sum().sum()
-if null_rows > 0:
-    df = df.dropna()
+    colums_drop = ["discount_percent", "payment_method", "rating", "review_count", "discounted_price", "total_revenue"]
+    df = df.drop(columns=colums_drop)
 
-#  Limpa linhas que contém preco ou quantidade inferiores a zero
-df = df[(df["price"] > 0) | (df["quantity_sold"] > 0)]
+    null_rows = df.isna().sum().sum()
+    if null_rows > 0:
+        df = df.dropna()
+        lg.info(f"foram excluidas um total de {null_rows} linhas consideradas NaN e None")
 
-# Limpr linhas com informações duplicadas
-duplicated_rows = df.duplicated().sum()
-if duplicated_rows > 0:
-    df = df.drop_duplicates()
+    duplicated_rows = df.duplicated(subset=["order_id"]).sum()
+    if duplicated_rows > 0:
+        df = df.drop_duplicates(subset=["order_id"])
+        lg.info(f"foram excluidas um total de {duplicated_rows} linhas com vendas duplicadas")
 
-# Padorinza a data realizando o sliced para apenas pegar ano e mês
-df["order_date"] = df['order_date'].str[0:7]
+    df["order_date"] = df['order_date'].str.strip().str[0:7]
 
-# Realiza aparo nos 20& dos dados para reduzir outliers
-df = df.sort_values(by="price" ,ascending=True)
-lower_limit = df['price'].quantile(0.1)
-upper_limit = df['price'].quantile(0.90)
-df = df[(df['price'] > lower_limit) & (df['price'] < upper_limit)]
+    df = df[(df['order_id'] > 0) &(df["price"] > 0) & (df["quantity_sold"] > 0)]
 
+    lower_limit = df['price'].quantile(0.1)
+    upper_limit = df['price'].quantile(0.9)
+    df = df[(df['price'] > lower_limit) & (df['price'] < upper_limit)]
 
-print(df)
+    columns_string = ["product_category", "customer_region"]
+    for column in columns_string:
+        df[column] = df[column].str.strip().str.title().astype('str')
+
+    columns_integer = ["product_id", "quantity_sold"]
+    for column in columns_integer:
+        df[column] = df[column].astype('int')
+
+    df['price'] = df['price'].astype('float')
+
+    df.to_csv("../data/processed/processed_leandro.csv", index=False)
+
+except FileNotFoundError as file_error:
+    lg.error(f"arquivo de origem ou destino do dataseset nao encontrado: {file_error}")
+
+except KeyError as column_error:
+    lg.error(f"coluna do dataset nao encontrada: {column_error}")
