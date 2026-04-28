@@ -59,7 +59,7 @@ def clean_outliers(df):
     return df
 
 def return_category(value):
-        if value >= 4.5:
+        if value > 4.5:
             return "Excellent"
         elif value >= 4.0 and value <= 4.4:
             return "Good"
