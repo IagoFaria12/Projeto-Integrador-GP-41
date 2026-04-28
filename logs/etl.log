@@ -1,1 +1,44 @@
 INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-25 21:18:22,230
+ERROR - coluna do dataset nao encontrada: 'discont_price' - 2026-04-26 19:58:22,779
+ERROR - coluna do dataset nao encontrada: 'discount_price' - 2026-04-26 19:59:00,227
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-26 19:59:28,227
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-26 19:59:55,187
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-26 20:00:55,368
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-26 20:01:12,782
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-26 20:01:32,733
+ERROR - arquivo de origem ou destino do dataseset nao encontrado: [Errno 2] No such file or directory: '../data/raw/amazon_sales_dataset.csv' - 2026-04-27 20:22:20,661
+ERROR - arquivo de origem ou destino do dataseset nao encontrado: [Errno 2] No such file or directory: '../data/raw/amazon_sales_dataset.csv' - 2026-04-27 20:23:00,027
+ERROR - arquivo de origem ou destino do dataseset nao encontrado: [Errno 2] No such file or directory: '../data/raw/amazon_sales_dataset.csv' - 2026-04-27 20:23:05,717
+ERROR - arquivo de origem ou destino do dataseset nao encontrado: [Errno 2] No such file or directory: '../data/raw/amazon_sales_dataset.csv' - 2026-04-27 20:23:28,553
+ERROR - arquivo de origem ou destino do dataseset nao encontrado: [Errno 2] No such file or directory: '../data/raw/amazon_sales_dataset.csv' - 2026-04-27 20:24:14,273
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 20:45:24,798
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 20:46:11,915
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 20:51:55,630
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 20:52:29,779
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:00:17,322
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:00:59,235
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:03:25,226
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:09:25,108
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:09:44,648
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:10:56,338
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:11:10,936
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:11:50,497
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:15:24,145
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:18:16,565
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:19:08,887
+ERROR - coluna do dataset nao encontrada: 'rating_category' - 2026-04-27 21:19:08,938
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:19:25,837
+ERROR - coluna do dataset nao encontrada: 'rating_category' - 2026-04-27 21:19:25,877
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:19:50,716
+ERROR - coluna do dataset nao encontrada: 'rating_category' - 2026-04-27 21:19:50,757
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:25:53,847
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:26:02,929
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:26:42,915
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:27:45,718
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:30:11,928
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:31:43,973
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:31:54,001
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:37:23,471
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:37:47,417
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:39:50,244
+INFO - foram eliminados um total de 10001 linhas que interfeririram na analise das medias - 2026-04-27 21:45:19,373
