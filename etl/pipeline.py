@@ -1,17 +1,12 @@
-from etl.transform import header_sanitize, drop_columns, drop_nulls, drop_duplicates,sanitize_and_typed, clean_negatives, clean_outliers
+from etl.transform import *
 from etl.load import load_database
+from config.logger import config_log, set_log
 import pandas as pd
-import logging as lg
-
-lg.basicConfig(
-    level=lg.DEBUG,
-    format="%(levelname)s - %(message)s - %(asctime)s",
-    filename="logs/etl.log",
-    filemode="a"
-)
 
 def run_pipeline():
     try:
+        config_log()
+
         df = pd.read_csv("data/raw/amazon_sales_dataset.csv")
 
         df = (df
@@ -30,10 +25,10 @@ def run_pipeline():
         load_database(processed_df)
         
     except FileNotFoundError as file_error:
-        lg.error(f"arquivo de origem ou destino do dataseset nao encontrado: {file_error}")
+        set_log("error", f"arquivo de origem ou destino do dataseset nao encontrado: {file_error}")
 
     except KeyError as column_error:
-        lg.error(f"coluna do dataset nao encontrada: {column_error}")
+        set_log("error", f"coluna do dataset nao encontrada: {column_error}")
 
 if __name__ == "__main__":
     run_pipeline()
