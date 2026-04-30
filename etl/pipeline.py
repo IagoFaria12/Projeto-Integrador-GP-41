@@ -1,4 +1,4 @@
-from etl.transform import header_sanitize, drop_columns, drop_nulls, drop_duplicates,sanitize_and_typed, clean_negatives, clean_outliers, add_review_category
+from etl.transform import header_sanitize, drop_columns, drop_nulls, drop_duplicates,sanitize_and_typed, clean_negatives, clean_outliers
 import pandas as pd
 import logging as lg
 
@@ -21,7 +21,6 @@ def run_pipeline():
             .pipe(sanitize_and_typed)
             .pipe(clean_negatives)
             .pipe(clean_outliers)
-            .pipe(add_review_category)
         )
 
         df.to_csv("data/processed/amazon_sales_dataset.csv", index=False)

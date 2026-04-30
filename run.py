@@ -1,4 +1,3 @@
-from etl.pipeline import run_pipeline
-from config.connection import get_connection
+from etl.load import load_database
 
-run_pipeline()
+load_database()

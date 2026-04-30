@@ -57,17 +57,3 @@ def clean_outliers(df):
     lg.info(f"foram eliminados um total de {rows_difference} linhas que interfeririram na analise das medias")  
 
     return df
-
-def return_category(value):
-        if value > 4.5:
-            return "Excellent"
-        elif value >= 4.0 and value <= 4.4:
-            return "Good"
-        elif value >= 3.0 and value <= 3.9:
-            return "Average"
-        else:
-            return "Poor"
-
-def add_review_category(df: pd.DataFrame):
-    df["rating_category"] = df["rating"].apply(return_category)
-    return df
