@@ -1,4 +1,5 @@
 from etl.transform import header_sanitize, drop_columns, drop_nulls, drop_duplicates,sanitize_and_typed, clean_negatives, clean_outliers
+from etl.load import load_database
 import pandas as pd
 import logging as lg
 
@@ -24,6 +25,10 @@ def run_pipeline():
         )
 
         df.to_csv("data/processed/amazon_sales_dataset.csv", index=False)
+
+        processed_df = pd.read_csv("data/processed/amazon_sales_dataset.csv")
+        load_database(processed_df)
+        
     except FileNotFoundError as file_error:
         lg.error(f"arquivo de origem ou destino do dataseset nao encontrado: {file_error}")
 

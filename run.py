@@ -1,3 +1,3 @@
-from etl.load import load_database
+from etl.pipeline import run_pipeline
 
-load_database()
+run_pipeline()
