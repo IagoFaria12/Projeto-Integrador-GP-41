@@ -5,7 +5,7 @@ def header_sanitize(df):
     return df
 
 def drop_columns(df):
-    colums_drop = ["discount_percent", "payment_method", "review_count", "discounted_price", "total_revenue"]
+    colums_drop = ["payment_method", "review_count", "discounted_price", "total_revenue"]
     df = df.drop(columns=colums_drop)
     return df
 
@@ -33,6 +33,7 @@ def sanitize_and_typed(df):
         df[column] = df[column].astype('int')
 
     df["price"] = df["price"].astype('float')
+    df["discount_percent"] = df["discount_percent"].astype("float")
     df["order_date"] = df['order_date'].astype("str")
     df["order_date"]= df["order_date"].str.strip().str[0:7]
     return df

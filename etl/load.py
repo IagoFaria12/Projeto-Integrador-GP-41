@@ -17,14 +17,16 @@ def switch_regions_id(df, cursor):
     cursor.execute(sql_regions)
     region_rows = cursor.fetchall()
     region_mapper = {row_category["name"]: row_category["id"] for row_category in region_rows}
-    return df["customer_region"].map(region_mapper)
+    df["customer_region"] = df["customer_region"].map(region_mapper)
+    return df
 
 def switch_categories_id(df, cursor):
     sql_categories =  "SELECT id, name FROM categories"
     cursor.execute(sql_categories)
     categories_rows = cursor.fetchall()
     categories_mapper = {category_row["name"]: category_row["id"] for category_row in categories_rows}
-    return df["product_category"].map(categories_mapper)
+    df["product_category"] = df["product_category"].map(categories_mapper)
+    return df
 
 def insert_products(df, cursor):
     products_list = df[["product_id", "price", "product_category"]].drop_duplicates(subset="product_id").to_dict("records")
@@ -36,10 +38,10 @@ def insert_sales(df, cursor):
     sales_list = df.to_dict("records")
     for sale in sales_list:
         sale_sql = """
-            INSERT OR IGNORE INTO sales (id, quantity_sold, rating, date, product_id, region_id)
-            VALUES(?, ?, ?, ?, ?, ?)
+            INSERT OR IGNORE INTO sales (id, quantity_sold, discount_percent, rating, date, product_id, region_id)
+            VALUES(?, ?, ?, ?, ?, ?, ?)
         """
-        cursor.execute(sale_sql, (sale["order_id"], sale["quantity_sold"], sale["rating"], sale["order_date"], sale["product_id"], sale["customer_region"]))
+        cursor.execute(sale_sql, (sale["order_id"], sale["quantity_sold"], sale["discount_percent"], sale["rating"], sale["order_date"], sale["product_id"], sale["customer_region"]))
 
 def load_database(df):
     conn = get_connection()
