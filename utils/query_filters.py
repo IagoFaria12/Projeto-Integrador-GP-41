@@ -20,5 +20,3 @@ def filter_year_month(sql, current_year, first_month, last_month):
         sql += "WHERE " + "".join(filters)
     
     return params, sql
-
-    
