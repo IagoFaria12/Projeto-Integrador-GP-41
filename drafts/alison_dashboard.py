@@ -154,7 +154,6 @@ df = load_data()
 # filtros disponíveis
 regions = sorted(df["customer_region"].dropna().unique().tolist())
 categories = sorted(df["product_category"].dropna().unique().tolist())
-payment_methods = sorted(df["payment_method"].dropna().unique().tolist())
 
 st.sidebar.markdown('<div class="sidebar-title">Global Filters</div>', unsafe_allow_html=True)
 st.sidebar.markdown('<div class="sidebar-subtitle">Aplique filtros para atualizar o dashboard</div>', unsafe_allow_html=True)
@@ -168,11 +167,6 @@ selected_categories = st.sidebar.multiselect(
     "Category",
     options=categories,
     default=categories,
-)
-selected_payment = st.sidebar.multiselect(
-    "Payment Method",
-    options=payment_methods,
-    default=payment_methods,
 )
 
 years = sorted(df["order_date"].dt.year.dropna().unique().astype(int).tolist())
@@ -206,7 +200,6 @@ if start_month > end_month:
 filtered = df[
     df["customer_region"].isin(selected_regions)
     & df["product_category"].isin(selected_categories)
-    & df["payment_method"].isin(selected_payment)
     & df["order_date"].dt.year.isin(selected_years)
     & df["order_date"].dt.month.between(start_month, end_month)
 ].copy()
@@ -222,26 +215,6 @@ main_tab, product_tab, behavior_tab = st.tabs([
 ])
 
 with main_tab:
-    total_revenue = filtered["total_revenue"].sum()
-    total_orders = filtered["order_id"].nunique()
-    avg_ticket = filtered["total_revenue"].sum() / max(total_orders, 1)
-    avg_rating = filtered["rating"].mean()
-    items_per_order = filtered.groupby("order_id")["quantity_sold"].sum().mean()
-
-    c1, c2, c3, c4, c5 = st.columns(5)
-    with c1:
-        metric_card("Total Revenue", money_br(total_revenue))
-    with c2:
-        metric_card("Total Orders", f"{total_orders:,}".replace(",", "."))
-    with c3:
-        metric_card("Avg Ticket", money_br(avg_ticket))
-    with c4:
-        metric_card("Avg Rating", f"{avg_rating:.2f} ⭐")
-    with c5:
-        metric_card("Items per Order", f"{items_per_order:.2f}")
-
-    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-
     col_left, col_right = st.columns([1.15, 0.95])
 
     with col_left:
@@ -282,98 +255,68 @@ with main_tab:
         st.plotly_chart(fig_region, width="stretch")
 
 with product_tab:
-    left, right = st.columns(2)
 
-    with left:
-        st.subheader("Top 10 Best Selling Products")
-        top_products = (
-            filtered.groupby("product_id", as_index=False)["quantity_sold"].sum()
-            .sort_values("quantity_sold", ascending=False)
-            .head(10)
-        )
-        fig_top = px.bar(
-            top_products,
-            x="product_id",
-            y="quantity_sold",
-            color="product_id",
-            text="quantity_sold",
-        )
-        fig_top.update_traces(marker_color="#2563eb", showlegend=False)
-        fig_top.update_layout(xaxis_title="Product ID", yaxis_title="Quantity Sold")
-        add_chart_style(fig_top, height=430)
-        st.plotly_chart(fig_top, width="stretch")
+    st.subheader("Top 10 Best Selling Products")
 
-    with right:
-        st.subheader("Sales by Category")
-        by_cat = filtered.groupby("product_category", as_index=False)["total_revenue"].sum()
-        fig_donut = go.Figure(
-            data=[
-                go.Pie(
-                    labels=by_cat["product_category"],
-                    values=by_cat["total_revenue"],
-                    hole=0.45,
-                    textinfo="percent",
-                    textfont=dict(color="#0f172a", size=12),
-                )
-            ]
+    top_products = (
+        filtered.groupby("product_id", as_index=False)
+        .agg(
+            quantity_sold=("quantity_sold", "sum"),
+            total_revenue=("total_revenue", "sum"),
+            avg_rating=("rating", "mean"),
         )
-        fig_donut.update_traces(
-            marker=dict(
-                colors=["#0b6bd3", "#fca5a5", "#ff3b30", "#86efac", "#2dd4bf", "#93c5fd", "#c084fc", "#f59e0b"]
-            )
+        .round({
+            "avg_rating": 2,
+            "total_revenue": 2,
+        })
+        .sort_values(
+            "quantity_sold",
+            ascending=False
         )
-        fig_donut.update_layout(showlegend=False)
-        add_chart_style(fig_donut, height=430)
-        st.plotly_chart(fig_donut, width="stretch")
+        .head(10)
+    )
 
-    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    top_products["label"] = (
+        top_products["quantity_sold"].astype(int).astype(str)
+        + " units | ⭐ "
+        + top_products["avg_rating"].map("{:.2f}".format)
+    )
 
-    c1, c2 = st.columns(2)
+    fig_top = px.bar(
+        top_products,
+        x="product_id",
+        y="quantity_sold",
+        text="label",
+        color="avg_rating",
+        color_continuous_scale="Blues",
+        hover_data={
+            "avg_rating": ":.2f",
+            "total_revenue": ":,.2f",
+        },
+    )
 
-    with c1:
-        st.subheader("Avg Rating & Review Classification")
-        product_ratings = (
-            filtered.groupby("product_id", as_index=False)["rating"]
-            .mean()
-            .round(2)
-            .sort_values("rating", ascending=False)
-            .head(10)
-        )
-        product_ratings["review_classification"] = pd.cut(
-            product_ratings["rating"],
-            bins=[0, 2.5, 3.5, 4.5, 5],
-            labels=["Ruim", "Regular", "Bom", "Excelente"],
-            include_lowest=True,
-        )
-        st.dataframe(
-            product_ratings.rename(
-                columns={
-                    "product_id": "Product ID",
-                    "rating": "Avg Rating",
-                    "review_classification": "Review Classification",
-                }
-            ),
-            use_container_width=True,
-        )
+    fig_top.update_traces(
+        textposition="outside",
+    )
 
-    with c2:
-        st.subheader("Top Categories by Revenue")
-        by_cat_rev = by_cat.sort_values("total_revenue", ascending=True)
-        fig_cat_rev = px.bar(
-            by_cat_rev,
-            x="total_revenue",
-            y="product_category",
-            orientation="h",
-        )
-        fig_cat_rev.update_traces(marker_color="#14b8a6")
-        fig_cat_rev.update_layout(xaxis_title="total_revenue", yaxis_title="product_category")
-        add_chart_style(fig_cat_rev, height=360)
-        st.plotly_chart(fig_cat_rev, width="stretch")
+    fig_top.update_layout(
+        xaxis_title="Product ID",
+        yaxis_title="Quantity Sold",
+        coloraxis_colorbar_title="Avg Rating",
+    )
+
+    add_chart_style(fig_top, height=450)
+
+    st.plotly_chart(
+        fig_top,
+        use_container_width=True,
+    )
 
 with behavior_tab:
+    items_per_order = filtered.groupby("order_id")["quantity_sold"].sum().mean()
     metric_card("Items per Order", f"{items_per_order:.2f}")
 
-    col1, col2 = st.columns(2)
+    col1 = st.columns(1)[0]
 
     with col1:
         st.subheader("Discount vs Non-Discount Sales")
@@ -391,94 +334,6 @@ with behavior_tab:
         fig_discount.update_layout(showlegend=False, xaxis_title="", yaxis_title="Count")
         add_chart_style(fig_discount, height=420)
         st.plotly_chart(fig_discount, width="stretch")
-
-    with col2:
-        st.subheader("Price Range Distribution")
-        if "price_range" in filtered.columns:
-            price_range = filtered["price_range"].value_counts().reset_index()
-            price_range.columns = ["price_range", "count"]
-            fig_price = px.bar(
-                price_range,
-                x="price_range",
-                y="count",
-                text="count",
-            )
-            fig_price.update_traces(marker_color="#1f77b4")
-            fig_price.update_layout(xaxis_title="price_range", yaxis_title="count")
-            add_chart_style(fig_price, height=420)
-            st.plotly_chart(fig_price, width="stretch")
-        else:
-            st.info("A coluna `price_range` não existe no dataset atual.")
-
-    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-
-    col3, col4 = st.columns(2)
-
-    with col3:
-        st.subheader("Rating vs Quantity Sold")
-        sample_n = min(1200, len(filtered))
-        scatter_df = filtered.sample(sample_n, random_state=42) if sample_n > 0 else filtered
-        fig_scatter = px.scatter(
-            scatter_df,
-            x="rating",
-            y="quantity_sold",
-            color="product_category",
-            opacity=0.65,
-        )
-        fig_scatter.update_layout(xaxis_title="rating", yaxis_title="quantity_sold")
-        add_chart_style(fig_scatter, height=360)
-        st.plotly_chart(fig_scatter, width="stretch")
-
-    with col4:
-        st.subheader("Revenue by Payment Method")
-        payment_rev = filtered.groupby("payment_method", as_index=False)["total_revenue"].sum()
-        payment_rev = payment_rev.sort_values("total_revenue", ascending=True)
-        fig_payment_rev = px.bar(
-            payment_rev,
-            x="total_revenue",
-            y="payment_method",
-            orientation="h",
-        )
-        fig_payment_rev.update_traces(marker_color="#a855f7")
-        fig_payment_rev.update_layout(xaxis_title="total_revenue", yaxis_title="payment_method")
-        add_chart_style(fig_payment_rev, height=360)
-        st.plotly_chart(fig_payment_rev, width="stretch")
-
-st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-st.subheader("Insights Principais")
-
-c1, c2, c3 = st.columns(3)
-
-best_category = (
-    filtered.groupby("product_category")["total_revenue"].sum().sort_values(ascending=False).index[0]
-    if not filtered.empty else "-"
-)
-best_region = (
-    filtered.groupby("customer_region")["total_revenue"].sum().sort_values(ascending=False).index[0]
-    if not filtered.empty else "-"
-)
-most_used_payment = (
-    filtered["payment_method"].value_counts().index[0]
-    if not filtered.empty else "-"
-)
-best_month = (
-    filtered.set_index("order_date").resample("ME")["total_revenue"].sum().idxmax().strftime("%b/%Y")
-    if not filtered.empty else "-"
-)
-
-with c1:
-    st.info(f"**Categoria mais lucrativa:** {best_category}")
-with c2:
-    st.info(f"**Região líder em receita:** {best_region}")
-with c3:
-    st.info(f"**Método de pagamento mais usado:** {most_used_payment}")
-
-c4, c5 = st.columns(2)
-with c4:
-    st.success(f"**Melhor mês no recorte atual:** {best_month}")
-with c5:
-    avg_discount = filtered["discount_percent"].mean()
-    st.warning(f"**Desconto médio no recorte atual:** {avg_discount:.2f}%")
 
 st.markdown("---")
 st.caption("Dashboard desenvolvido para o Projeto Integrador GP-41")
