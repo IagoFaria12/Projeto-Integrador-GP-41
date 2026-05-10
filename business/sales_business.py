@@ -22,7 +22,7 @@ def items_per_order(current_year = None, first_month = None, last_month = None):
     return row
 
 # Lines Chart Sales Evolution Over Time
-def evolution_over_time(current_year = None, first_month = None, last_month = None):
+def order_evolution_over_time(current_year = None, first_month = None, last_month = None):
 
     conn, cursor = get_connection()
 
@@ -46,8 +46,33 @@ def evolution_over_time(current_year = None, first_month = None, last_month = No
 
     return rows
 
+def gross_evolution_over_time(current_year = None, first_month = None, las_month = None):
+
+    conn, cursor = get_connection()
+
+    sql = """
+    SELECT s.date, ROUND(SUM(p.price * s.quantity_sold), 2) AS gross_total
+    FROM sales AS s
+    INNER JOIN products AS p ON s.product_id = p.id
+    """
+
+    params, sql = filter_year_month(sql, current_year, first_month, las_month)
+
+    sql += """
+        GROUP BY s.date
+        ORDER BY gross_total DESC
+    """
+
+    cursor.execute(sql, (params))
+    rows = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return rows
+
 # Bars Chart Sales by Region
-def sales_by_region(current_year = None, first_month = None, last_month = None):
+def order_by_region(current_year = None, first_month = None, last_month = None):
 
     conn, cursor = get_connection()
 
@@ -72,8 +97,33 @@ def sales_by_region(current_year = None, first_month = None, last_month = None):
     
     return rows
 
+def gross_by_region(current_year = None, first_month = None, last_month = None):
+
+    conn, cursor = get_connection()
+
+    sql = """
+    SELECT r.name, ROUND(SUM(p.price * s.quantity_sold), 2) AS gross_total
+    FROM sales AS s
+    INNER JOIN products AS p ON s.product_id = p.id
+    INNER JOIN regions AS r ON s.region_id = r.id
+    """
+    params, sql = filter_year_month(current_year, first_month, last_month)
+    
+    cursor.execute(sql, (params))
+    rows = cursor.fetchall()
+
+    sql += """
+    GROUP BY r.id
+    ORDER BY sales_total DESC
+    """
+
+    cursor.close()
+    conn.close()
+
+    return rows
+
 # Table Top Selling Products
-def top_sales(current_year = None, first_month = None, last_month = None):
+def order_top_sales(current_year = None, first_month = None, last_month = None):
 
     conn, cursor = get_connection()
 
@@ -94,7 +144,8 @@ def top_sales(current_year = None, first_month = None, last_month = None):
     LIMIT 10
     """
 
-    rows = cursor.execute(sql, params)
+    cursor.execute(sql, (params))
+    rows = cursor.fetchall()
 
     cursor.close()
     conn.close()
@@ -102,7 +153,7 @@ def top_sales(current_year = None, first_month = None, last_month = None):
     return rows
 
 # Pie Chart Sales by Category   
-def sales_by_category(current_year = None, first_month = None, last_month = None):
+def order_by_category(current_year = None, first_month = None, last_month = None):
 
     conn, cursor = get_connection()
 
@@ -117,6 +168,33 @@ def sales_by_category(current_year = None, first_month = None, last_month = None
 
     sql +=  """
     GROUP BY c.id
+    ORDER BY sales_total DESC
+    """
+
+    cursor.execute(sql, (params))
+    rows = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return rows
+
+def gross_by_category(current_year = None, first_month = None, last_month = None):
+
+    conn, cursor = get_connection()
+
+    sql = """
+    SELECT c.name, ROUND(SUM(p.price * s.quantity_sold), 2) AS gross_total
+    FROM sales AS s
+    INNER JOIN products AS p ON s.product_id = p.id
+    INNER JOIN categories as c ON p.category_id = c.id
+    """
+
+    params, sql = filter_year_month(sql, current_year, first_month, last_month)
+
+    sql += """
+    GROUP BY c.id
+    ORDER BY gross_total DESC
     """
 
     cursor.execute(sql, (params))
@@ -128,17 +206,17 @@ def sales_by_category(current_year = None, first_month = None, last_month = None
     return rows
 
 # Pie Chart Discount vs Non-Discount Sales
-def discount_comparison(current_year = None, first_month = None, last_month = None):
+def order_discount_comparison(current_year = None, first_month = None, last_month = None):
 
     conn, cursor = get_connection()
 
     sql = """
     SELECT
         CASE
-        WHEN s.discount_percent > 0 THEN "with_discount"
-        ELSE "without_discount"
+            WHEN s.discount_percent > 0 THEN "with_discount"
+            ELSE "without_discount"
         END AS category_discount,
-    COUNT(s.id) AS sales_total
+    COUNT(s.id) AS order_total
     FROM sales AS s
     """
 
@@ -155,13 +233,43 @@ def discount_comparison(current_year = None, first_month = None, last_month = No
 
     return rows
 
-# Bars Chart Price Range Distribution
-def price_range_distribution(current_year = None, first_month = None, last_month = None):
+def gross_discount_comparison(current_year = None, first_month = None, last_month = None):
 
     conn, cursor = get_connection()
 
     sql = """
-    SELECT COUNT(s.id) as total_sold,
+    SELECT
+        CASE
+            WHEN s.discount_percent > 0 THEN "with_discount"
+            ELSE "without_discount"
+        END AS category_discount,
+    ROUND(SUM(p.price * s.quantity_sold),2) AS gross_total
+    FROM sales AS s
+    INNER JOIN products AS p ON s.product_id = p.id
+    """
+
+    params, sql = filter_year_month(sql, current_year, first_month, last_month)
+
+    sql += """
+    GROUP BY category_discount
+    ORDER BY gross_total DESC
+    """
+
+    cursor.execute(sql, (params))
+    rows = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return rows
+
+# Bars Chart Price Range Distribution
+def order_price_range_distribution(current_year = None, first_month = None, last_month = None):
+
+    conn, cursor = get_connection()
+
+    sql = """
+    SELECT COUNT(s.id) AS order_total,
         CASE
             WHEN p.price > 100.00 AND p.price < 200.00 THEN "Mid"
             WHEN P.PRICE > 200.00 AND p.price < 500.00 THEN "High"
@@ -175,9 +283,39 @@ def price_range_distribution(current_year = None, first_month = None, last_month
 
     sql += """
     GROUP BY price_range
-    ORDER BY total_sold DESC
+    ORDER BY order_total DESC
     """
      
+    cursor.execute(sql, (params))
+    rows = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return rows
+
+def gross_price_range_distribution(current_year = None, first_month = None, last_month = None):
+
+    conn, cursor = get_connection()
+
+    sql = """
+    SELECT ROUND(SUM(p.price * s.quantity_sold) ,2) AS gross_total,
+        CASE
+            WHEN p.price > 100.00 AND p.price < 200.00 THEN "Mid"
+            WHEN p.price > 200.00 AND p.price < 500.00 THEN "High"
+            ELSE "Low"
+        END AS price_range
+    FROM sales AS s
+    INNER JOIN products AS p ON s.product_id = p.id
+    """
+
+    params, sql = filter_year_month(sql, current_year, first_month, last_month)
+
+    sql += """
+    GROUP BY price_range
+    ORDER BY gross_total DESC
+    """
+
     cursor.execute(sql, (params))
     rows = cursor.fetchall()
 

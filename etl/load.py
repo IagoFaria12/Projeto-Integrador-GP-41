@@ -1,56 +1,56 @@
 from config.connection import get_connection
 
 def insert_categories(df, cursor):
-    categories_list = df["product_category"].drop_duplicates().to_list()
-    for category in categories_list:
+    categories = df["product_category"].drop_duplicates().to_list()
+    for category in categories:
         sql = "INSERT OR IGNORE INTO categories (name) VALUES(?)"
         cursor.execute(sql, (category,))
 
 def insert_regions(df, cursor):
-    regions_list = df["customer_region"].drop_duplicates().to_list()
-    for region in regions_list:
+    regions = df["customer_region"].drop_duplicates().to_list()
+    for region in regions:
         sql = "INSERT OR IGNORE INTO regions (name) VALUES(?)"
         cursor.execute(sql, (region,))
 
 def switch_regions_id(df, cursor):
-    sql_regions = "SELECT id, name FROM regions"
-    cursor.execute(sql_regions)
-    region_rows = cursor.fetchall()
-    region_mapper = {row_category["name"]: row_category["id"] for row_category in region_rows}
-    df["customer_region"] = df["customer_region"].map(region_mapper)
+    sql = "SELECT id, name FROM regions"
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    mapper = {row_category["name"]: row_category["id"] for row_category in rows}
+    df["customer_region"] = df["customer_region"].map(mapper)
     return df
 
 def switch_categories_id(df, cursor):
-    sql_categories =  "SELECT id, name FROM categories"
-    cursor.execute(sql_categories)
-    categories_rows = cursor.fetchall()
-    categories_mapper = {category_row["name"]: category_row["id"] for category_row in categories_rows}
-    df["product_category"] = df["product_category"].map(categories_mapper)
+    sql =  "SELECT id, name FROM categories"
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    mapper = {category_row["name"]: category_row["id"] for category_row in rows}
+    df["product_category"] = df["product_category"].map(mapper)
+
     return df
 
 def insert_products(df, cursor):
-    products_list = df[["product_id", "price", "product_category"]].drop_duplicates(subset="product_id").to_dict("records")
-    for product in products_list:
-        product_sql = "INSERT OR IGNORE INTO products (id, price, category_id) VALUES(?, ?, ?)"
-        cursor.execute(product_sql, (product["product_id"], product["price"], product["product_category"]))
+    products = df[["product_id", "price", "product_category"]].drop_duplicates(subset="product_id").to_dict("records")
+    for product in products:
+        sql = "INSERT OR IGNORE INTO products (id, price, category_id) VALUES(?, ?, ?)"
+        cursor.execute(sql, (product["product_id"], product["price"], product["product_category"]))
 
 def insert_sales(df, cursor):
-    sales_list = df.to_dict("records")
-    for sale in sales_list:
-        sale_sql = """
+    sales = df.to_dict("records")
+    for sale in sales:
+        sql = """
             INSERT OR IGNORE INTO sales (id, quantity_sold, discount_percent, rating, date, product_id, region_id)
             VALUES(?, ?, ?, ?, ?, ?, ?)
         """
-        cursor.execute(sale_sql, (sale["order_id"], sale["quantity_sold"], sale["discount_percent"], sale["rating"], sale["order_date"], sale["product_id"], sale["customer_region"]))
+        cursor.execute(sql, (sale["order_id"], sale["quantity_sold"], sale["discount_percent"], sale["rating"], sale["order_date"], sale["product_id"], sale["customer_region"]))
 
 def load_database(df):
-    conn = get_connection()
-    cursor = conn.cursor()
+    conn, cursor = get_connection()
 
     insert_categories(df, cursor)
     insert_regions(df, cursor)
-    switch_regions_id(df, cursor)
-    switch_categories_id(df, cursor)
+    df = switch_regions_id(df, cursor)
+    df = switch_categories_id(df, cursor)
     insert_products(df, cursor)
     insert_sales(df, cursor)
 

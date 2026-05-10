@@ -19,16 +19,16 @@ def run_pipeline():
             .pipe(clean_outliers)
         )
 
-        df.to_csv("data/processed/amazon_sales_dataset.csv", index=False)
-
-        processed_df = pd.read_csv("data/processed/amazon_sales_dataset.csv")
-        load_database(processed_df)
+        load_database(df)
         
     except FileNotFoundError as file_error:
         set_log("error", f"arquivo de origem ou destino do dataseset nao encontrado: {file_error}")
 
     except KeyError as column_error:
         set_log("error", f"coluna do dataset nao encontrada: {column_error}")
+
+    except Exception as generic_error:
+        set_log("error", f"Erro encontrado durante a execução: {generic_error}")
 
 if __name__ == "__main__":
     run_pipeline()
