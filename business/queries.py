@@ -1,8 +1,8 @@
 from config.connection import get_connection
-from utils.query_filters import filter_year_month
+from utils.filters import filter_year_month
 
 # KPI Items per Order
-def items_per_order(current_year = None, first_month = None, last_month = None):
+def items_per_order(categories = None, current_year = None, first_month = None, last_month = None):
 
     conn, cursor = get_connection()
 
@@ -11,7 +11,7 @@ def items_per_order(current_year = None, first_month = None, last_month = None):
     FROM sales AS s
     """
 
-    params, sql = filter_year_month(sql, current_year, first_month, last_month)
+    params, sql = filter_year_month(sql, categories, current_year, first_month, last_month)
     cursor.execute(sql, (params))
 
     row = cursor.fetchone()
@@ -22,20 +22,21 @@ def items_per_order(current_year = None, first_month = None, last_month = None):
     return row
 
 # Lines Chart Sales Evolution Over Time
-def order_evolution_over_time(current_year = None, first_month = None, last_month = None):
+def order_evolution_over_time(categories = None, current_year = None, first_month = None, last_month = None):
 
     conn, cursor = get_connection()
 
     sql = """
-    SELECT s.date ,COUNT(s.id) as sales_total
+    SELECT s.date ,COUNT(s.id) as order_total
     FROM sales as s
+    INNER JOIN products AS p ON s.product_id = p.id
     """
 
-    params, sql = filter_year_month(sql, current_year, first_month, last_month)
+    params, sql = filter_year_month(sql, categories, current_year, first_month, last_month)
 
     sql += """
-        GROUP BY s.date
-        ORDER BY sales_total DESC
+    GROUP BY s.date
+    ORDER BY order_total DESC
     """
 
     cursor.execute(sql, (params))
@@ -46,7 +47,7 @@ def order_evolution_over_time(current_year = None, first_month = None, last_mont
 
     return rows
 
-def gross_evolution_over_time(current_year = None, first_month = None, las_month = None):
+def gross_evolution_over_time(categories = None, current_year = None, first_month = None, last_month = None):
 
     conn, cursor = get_connection()
 
@@ -56,11 +57,11 @@ def gross_evolution_over_time(current_year = None, first_month = None, las_month
     INNER JOIN products AS p ON s.product_id = p.id
     """
 
-    params, sql = filter_year_month(sql, current_year, first_month, las_month)
+    params, sql = filter_year_month(sql, categories, current_year, first_month, last_month)
 
     sql += """
-        GROUP BY s.date
-        ORDER BY gross_total DESC
+    GROUP BY s.date
+    ORDER BY gross_total DESC
     """
 
     cursor.execute(sql, (params))
@@ -79,6 +80,7 @@ def order_by_region(current_year = None, first_month = None, last_month = None):
     sql = """
     SELECT r.name AS region, COUNT(s.id) AS sales_total 
     FROM sales AS s
+    INNER JOIN products AS p ON s.product_id = p.id
     INNER JOIN regions as r ON s.region_id = r.id
     """
 
@@ -218,6 +220,7 @@ def order_discount_comparison(current_year = None, first_month = None, last_mont
         END AS category_discount,
     COUNT(s.id) AS order_total
     FROM sales AS s
+    INNER JOIN products AS p ON s.product_id = p.id
     """
 
     params, sql = filter_year_month(sql, current_year, first_month, last_month)
