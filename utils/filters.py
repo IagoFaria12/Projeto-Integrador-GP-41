@@ -7,21 +7,33 @@ def filter_year_month(sql, categories, current_year, first_month, last_month):
         placeholders = ",".join("?" for _ in categories)
         filters.append(f"p.category_id IN ({placeholders})")
 
+    def safe_int_str(val):
+        try:
+            if val is not None and str(val).strip().isdigit():
+                return f"{int(val):02d}"
+        except (ValueError, TypeError):
+            pass
+        return None
+
+    f_month_str = safe_int_str(first_month)
+    l_month_str = safe_int_str(last_month)
+
     if current_year:
-        if first_month and last_month:
-            params.append(f"{current_year}-{first_month}")
-            params.append(f"{current_year}-{last_month}")
+        if f_month_str and l_month_str:
+            params.append(f"{current_year}-{f_month_str}-01")
+            params.append(f"{current_year}-{l_month_str}-31")
             filters.append("s.date BETWEEN ? AND ?")
-
-        if first_month and not last_month:
-            params.append(f"{current_year}-{first_month}")
-            filters.append("s.date = ?")
-
-        if not first_month and not last_month:
+        elif f_month_str:
+            params.append(f"{current_year}-{f_month_str}%")
+            filters.append("s.date LIKE ?")
+        else:
             params.append(f"{current_year}%")
             filters.append("s.date LIKE ?")
 
     if filters:
-        sql += " WHERE " + " AND ".join(filters)
+        if "WHERE" in sql.upper():
+            sql += " AND " + " AND ".join(filters)
+        else:
+            sql += " WHERE " + " AND ".join(filters)
 
     return params, sql
