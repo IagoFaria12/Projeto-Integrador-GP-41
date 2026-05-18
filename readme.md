@@ -1,3 +1,5 @@
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://projeto-integrador-gp-41.streamlit.app/)
+
 DOCUMENTAÇÃO DO PROJETO INTEGRADOR – DESENVOLVIMENTO LOW CODE EM CIÊNCIA DE DADOS
 
 Tema do Projeto: Dashboard Estratégico de Vendas para Marketing
@@ -6,17 +8,11 @@ Integrantes:
 
 •	Alison Moretto Dias 
 
-•	Caetano Araujo Mina 
-
 •	Felipe Santos de Alencar 
 
 •	Iago Faria dos Santos 
 
-•	Ivan Silva de Arruda Campos 
-
 •	Leandro Morais dos Santos 
-
-•	Marcio Ricardo Hatzlhoffer Correia Filho 
 
 
 -------------------------------------------------------------------------
@@ -202,4 +198,90 @@ Painel 3 — Análise geográfica
 Painel 4 — Tendência temporal
 
 •	Evolução das vendas ao longo do tempo
+
+
+------------------------------------------------------------------------
+
+----- SEGUNDO TRIMESTRE - SEGUNDA ETAPA DO PROJETO -----
+
+**Acesse o Dashboard em Produção:** [Clique aqui para acessar o sistema no Streamlit Cloud](https://projeto-integrador-gp-41.streamlit.app/)
+
+# Amazon Sales Performance Dashboard
+
+## Sobre o Projeto
+Este projeto consiste em uma aplicação de Business Intelligence e Ciência de Dados desenvolvida para analisar criticamente o desempenho de vendas da Amazon, a distribuição geográfica dos pedidos e o impacto real de campanhas de cupons e descontos. 
+
+A solução foi estruturada utilizando uma arquitetura modular de software, integrando uma base de dados relacional e um dashboard interativo focado em tomadas de decisão estratégicas.
+
+---
+
+## Tecnologias e Ferramentas Utilizadas
+* **Linguagem Principal:** Python 3
+* **Manipulação e Engenharia de Dados:** Pandas / NumPy
+* **Persistência de Dados (Banco de Dados):** SQLite
+* **Framework do Dashboard (Low-Code):** Streamlit
+* **Visualizações Gráficas Dinâmicas:** Plotly Express
+* **Gestão Ágil e Organização:** Trello (Framework Kanban) / Git & GitHub
+
+---
+
+## Histórico de Desenvolvimento e Gestão Ágil
+O projeto foi conduzido seguindo metodologias ágeis de desenvolvimento, organizando as entregas em sprints cronológicas ao longo do trimestre:
+
+* **Fase 1: Alinhamento e Engenharia de Atributos (19/04 a 25/04)**
+  * Reunião de escopo para reavaliação de métricas e indicadores de negócios mapeados anteriormente.
+  * Estruturação do Kanban no Trello para distribuição transparente de tarefas.
+  * Execução do pipeline de **ETL (Extração, Transformação e Carga)** com Pandas para limpeza, tratamento de inconsistências e preparação da base de dados original.
+* **Fase 2: Modelagem de Banco de Dados e Prototipagem do Front-end (26/04 a 09/05)**
+  * Reunião de consolidação da base unificada de dados tratada.
+  * Carga e persistência dos dados estruturados no ambiente **SQLite**.
+  * Desenvolvimento das regras de negócio diretamente no Back-end via queries relacionais.
+  * Início do desenvolvimento de protótipos de interface, mockups e layouts visuais no Streamlit (Front-end).
+* **Fase 3: Integração, Testes e Refinamento (10/05 a 17/05)**
+  * Finalização e deploy da lógica de persistência e repositórios de dados no Back-end.
+  * Integração total dos componentes visuais do Front-end com as funções analíticas de banco de dados.
+  * Homologação de filtros dinâmicos cruzados (Ano, Intervalo de Meses e Categorias).
+  * Testes finais de usabilidade, correções monetárias (exibição de moedas) e refinamento de layout.
+
+---
+
+## Estrutura Arquitetural do Repositório
+Para garantir manutenibilidade e boas práticas de desenvolvimento de software, o repositório foi organizado de forma modular:
+
+* `/business`: Camada de negócio responsável pela persistência de dados e execução de queries SQL.
+* `/config`: Configurações globais de conexão com a base de dados e sistemas de logging.
+* `/data`: Repositório de dados locais (arquivos brutos e arquivo de banco `.db`).
+* `/drafts`: Sandboxes de desenvolvimento para testes de escopo, exemplos rápidos e rascunhos.
+* `/etl`: Scripts em Python/Pandas responsáveis pelo pipeline de extração e higienização dos dados brutos.
+* `/logs`: Registros de rastreamento e auditoria de execução da aplicação.
+* `/utils`: Módulos utilitários contendo lógicas auxiliares (ex: filtros temporais e categóricos).
+* `dashboard.py`: Arquivo principal (raiz) que inicializa e renderiza a aplicação Streamlit.
+
+---
+
+## Indicadores e Métricas Implementadas
+O dashboard responde ativamente a regras de negócio complexas por meio dos seguintes indicadores consolidados:
+1. **Faturamento Bruto e Faturamento Líquido** (Ganhos reais descontando deduções).
+2. **Total de Pedidos e Ticket Médio** por transação.
+3. **Média de Itens por Pedido** e Nível de Satisfação (Avaliação Média dos Produtos).
+4. **Análise de Elasticidade de Preço:** Distribuição de faturamento bruto por faixas de preço (`Low`, `Mid`, `High`).
+5. **Impacto de Campanhas:** Gráfico de volumetria comparativo entre vendas efetuadas Com Desconto vs. Preço Regular.
+6. **Participação de Mercado:** Desempenho granular de vendas segmentado por Categorias de Produtos e Regiões Geográficas.
+7. **Evolução Temporal:** Linha histórica de comportamento do faturamento total.
+
+---
+
+## Organização das Equipes e Contribuição
+Para maximizar a eficiência e o foco técnico, a equipe foi dividida em núcleos de atuação direta:
+
+* **Núcleo de Back-end & Engenharia de Dados:** Leandro e Felipe.
+* **Núcleo de Front-end, UX & Documentação:** Iago e Alison.
+
+---
+
+## Como Executar a Aplicação Localmente
+
+1. Clone o repositório para sua máquina local:
+   ```bash
+   git clone [https://github.com/Feclp/Projeto-Integrador-GP-41.git](https://github.com/Feclp/Projeto-Integrador-GP-41.git)
 
