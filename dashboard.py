@@ -73,12 +73,16 @@ lista_anos = ["Todos", "2022", "2023"]
 ano_sel = st.sidebar.selectbox("Ano de Análise", lista_anos)
 ano_backend = None if ano_sel == "Todos" else ano_sel
 
-lista_meses = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
-mes_ini = st.sidebar.selectbox("Mês Inicial", options=lista_meses, index=0)
+if ano_backend is not None:
+    lista_meses = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
+    mes_ini = st.sidebar.selectbox("Mês Inicial", options=lista_meses, index=0)
 
-opcoes_mes_fim = ["Apenas este mês"] + lista_meses[lista_meses.index(mes_ini):]
-mes_fim_sel = st.sidebar.selectbox("Mês Final", options=opcoes_mes_fim, index=0)
-mes_fim = "" if mes_fim_sel == "Apenas este mês" else mes_fim_sel
+    opcoes_mes_fim = ["Apenas este mês"] + lista_meses[lista_meses.index(mes_ini) + 1:]
+    mes_fim_sel = st.sidebar.selectbox("Mês Final", options=opcoes_mes_fim, index=0)
+    mes_fim = "" if mes_fim_sel == "Apenas este mês" else mes_fim_sel
+else:
+    mes_ini = "01"
+    mes_fim = ""
 
 # ==========================================
 # ========== DADOS DOS KPIS ================
@@ -154,19 +158,38 @@ with tab_financeiro:
         raw_evolucao = gross_evolution_over_time(categorias_ids, ano_backend, mes_ini, mes_fim)
 
         if raw_evolucao:
+
             df_ev = pd.DataFrame([dict(r) for r in raw_evolucao])
-            df_ev['date'] = pd.to_datetime(df_ev['date'])
             df_ev = df_ev.sort_values('date')
 
-            fig_ev = px.line(
-                df_ev,
-                x='date',
-                y='gross_total',
-                labels={'date': 'Data', 'gross_total': 'Faturamento Bruto (U$)'},
-                template="plotly_white"
-            )
-            fig_ev.update_traces(line={"color": "#FF9900", "width": 3})
-            st.plotly_chart(fig_ev, use_container_width=True)
+            if len(df_ev) == 1:
+                fig_ev = px.bar(
+                    df_ev,
+                    x='date',
+                    y='gross_total',
+                    labels={'date': 'Mês', 'gross_total': 'Faturamento Bruto (U$)'},
+                    template="plotly_white",
+                    text_auto='.2s'
+                )
+                fig_ev.update_traces(marker_color="#FF9900", width=0.2)
+
+                chart_key = "grafico_evolucao_barra"
+            else:
+                fig_ev = px.line(
+                    df_ev,
+                    x='date',
+                    y='gross_total',
+                    labels={'date': 'Data', 'gross_total': 'Faturamento Bruto (U$)'},
+                    template="plotly_white",
+                    markers=True
+                )
+                fig_ev.update_traces(connectgaps=True, line={"color": "#FF9900", "width": 3})
+
+                chart_key = "grafico_evolucao_linha"
+
+            fig_ev.update_layout(xaxis_type='category')
+
+            st.plotly_chart(fig_ev, use_container_width=True, key=chart_key)
         else:
             st.info("Sem dados de evolução temporal para os filtros selecionados.")
 
@@ -256,6 +279,21 @@ with tab_produtos:
                 color_discrete_map=CORES_CATEGORIAS,
                 template="plotly_white"
             )
+
+            fig_cat.update_traces(
+                textfont=dict(
+                    family="Helvetica",
+                    size=15,
+                    weight="bold",
+                    color="white"
+                )
+            )
+
+            fig_cat.update_layout(
+                legend_font=dict(
+                    size=13,
+                    weight='bold')
+            )
             st.plotly_chart(fig_cat, use_container_width=True)
         else:
             st.info("Sem dados de faturamento por categoria.")
@@ -314,8 +352,22 @@ with tab_precificacao:
                 values='order_total',
                 hole=0.4,
                 color='category_discount',
-                color_discrete_map={'Com Desconto': '#FF9900', 'Preço Regular': '#232F3E'},
+                color_discrete_map={'Com Desconto': '#FF9900', 'Preço Regular': '#E65100'},
                 template="plotly_white"
+            )
+            fig_desc.update_traces(
+                textfont=dict(
+                    family="Helvetica",
+                    size=15,
+                    weight="bold",
+                    color="white"
+                )
+            )
+
+            fig_desc.update_layout(
+                legend_font=dict(
+                    size=13,
+                    weight='bold')
             )
 
             fig_desc.update_traces(textinfo='percent+value')

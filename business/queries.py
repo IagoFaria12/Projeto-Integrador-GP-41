@@ -30,16 +30,17 @@ def order_evolution_over_time(categories = None, current_year = None, first_mont
     conn, cursor = get_connection()
 
     sql = """
-    SELECT s.date ,COUNT(s.id) as order_total
+    SELECT s.date, COUNT(s.id) as order_total
     FROM sales as s
     INNER JOIN products AS p ON s.product_id = p.id
     """
 
     params, sql = filter_year_month(sql, categories, current_year, first_month, last_month)
 
+
     sql += """
     GROUP BY s.date
-    ORDER BY order_total DESC
+    ORDER BY s.date ASC
     """
 
     cursor.execute(sql, (params))
@@ -62,9 +63,10 @@ def gross_evolution_over_time(categories = None, current_year = None, first_mont
 
     params, sql = filter_year_month(sql, categories, current_year, first_month, last_month)
 
+
     sql += """
     GROUP BY s.date
-    ORDER BY gross_total DESC
+    ORDER BY s.date ASC
     """
 
     cursor.execute(sql, (params))
